@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import util.MysqlUtil;
 import vo.CompanyVO;
@@ -21,8 +23,7 @@ public class UnstoringDAO {
 //	CallableStatement cst; //SP지원 (Stored Procedure 할때 필요) 
 	ResultSet rs;
 	int resultCount; // insert, update, delete건수
-	
-	
+
 	// 송장입력 버튼 => 입력한 송장번호로 update
 	public int trackingNumberInput(UnstoringVO unstoring) {
 		String sql = """
@@ -35,7 +36,7 @@ public class UnstoringDAO {
 			pst = conn.prepareStatement(sql);
 			pst.setString(1, unstoring.getTracking_number());
 			pst.setString(2, unstoring.getUnstoring_code());
-			
+
 			resultCount = pst.executeUpdate();
 		} catch (SQLException e) {
 			resultCount = -1;
@@ -45,20 +46,19 @@ public class UnstoringDAO {
 		}
 		return resultCount;
 	}
-	
-	
+
 	// 주문취소 버튼 => 주문상태(unstoring_state)를 '주문취소'로 update (O)
 	public int cancelOrder(UnstoringVO unstoring) {
 		String sql = """
 				update unstoring
 				set unstoring_state = '주문취소'
-				where unstoring_code = ?	
+				where unstoring_code = ?
 				""";
 		conn = MysqlUtil.getConnection();
 		try {
 			pst = conn.prepareStatement(sql);
 			pst.setString(1, unstoring.getUnstoring_code());
-			
+
 			resultCount = pst.executeUpdate();
 		} catch (SQLException e) {
 			resultCount = -1;
@@ -99,6 +99,33 @@ public class UnstoringDAO {
 		}
 		return resultCount;
 	}
+	
+	public List<UnstoringVO> selectAllByUnstoringCode(UnstoringVO unstoring) {
+		String sql = """
+				select distinct(unstoring_code), customer_name, customer_address, order_register, unstoring_date, tracking_number, unstoring_state, manager_id, unstoring_memo
+				from unstoring
+				where unstoring_code = ?
+				""";
+		List<UnstoringVO> unstoreList = new ArrayList<>();
+		conn = MysqlUtil.getConnection();
+		try {
+			pst = conn.prepareStatement(sql);
+			pst.setString(1, unstoring.getUnstoring_code());
+			
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				UnstoringVO unstoring2 = makeUnstore(rs);
+				unstoreList.add(unstoring2);
+			}
+		} catch (SQLException e) {
+			System.out.println("여기서 에러");
+			e.printStackTrace();
+		} finally {
+			MysqlUtil.dbDisconnect(rs, pst, conn);
+		}
+		System.out.println("여기까진 잘왔음");
+		return unstoreList;
+	}
 
 	// 주문건 조회 (company_id가 100번인 기업의 주문건은 VO 형태로 여러개니까 List<>)
 	public List<UnstoringVO> selectAll(CompanyVO company) { // ★★ 로그인해서 세션에 저장된 그 회사의 정보가 들어와야 하고 => 그놈의 company_id로 아래
@@ -131,6 +158,50 @@ public class UnstoringDAO {
 	}
 
 	private UnstoringVO makeUnstore(ResultSet rs) throws SQLException {
+		UnstoringVO unstoring = new UnstoringVO();
+		unstoring.setUnstoring_code(rs.getString("Unstoring_code"));
+		unstoring.setCustomer_name(rs.getString("Customer_name"));
+		unstoring.setCustomer_address(rs.getString("Customer_address"));
+		unstoring.setOrder_register(rs.getDate("Order_register"));
+		unstoring.setUnstoring_date(rs.getDate("Unstoring_date"));
+		unstoring.setTracking_number(rs.getString("Tracking_number"));
+		unstoring.setUnstoring_state(rs.getNString("Unstoring_state"));
+		unstoring.setManager_id(rs.getString("Manager_id"));
+		unstoring.setUnstoring_memo(rs.getString("Unstoring_memo"));
+
+		return unstoring;
+	}
+
+	public Map<String, UnstoringVO> selectAllbyMap(CompanyVO company) { // ★★ 로그인해서 세션에 저장된 그 회사의 정보가 들어와야 하고 => 그놈의 company_id로 아래
+		// sql 조회할 거니가 필요함
+
+		String sql = """
+				select distinct(u.unstoring_code), customer_name, customer_address, order_register, unstoring_date, tracking_number, unstoring_state, u.manager_id, unstoring_memo
+				from unstoring u join unstoring_detail ud on u.unstoring_code = ud.unstoring_code
+				join product p on ud.product_code = p.product_code
+				join company c on c.company_id = p.company_id
+				where p.company_id = ?
+				""";
+		Map<String, UnstoringVO> unstoreMap = new HashMap<>();
+		conn = MysqlUtil.getConnection();
+		try {
+			pst = conn.prepareStatement(sql);
+			pst.setInt(1, company.getCompany_id());
+
+			rs = pst.executeQuery();
+			while (rs.next()) {
+				UnstoringVO unstore = makeUnstorebyMap(rs);
+				unstoreMap.put("test", unstore);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			MysqlUtil.dbDisconnect(rs, pst, conn);
+		}
+		return unstoreMap;
+	}
+	
+	private UnstoringVO makeUnstorebyMap(ResultSet rs) throws SQLException {
 		UnstoringVO unstoring = new UnstoringVO();
 		unstoring.setUnstoring_code(rs.getString("Unstoring_code"));
 		unstoring.setCustomer_name(rs.getString("Customer_name"));

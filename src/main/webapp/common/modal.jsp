@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<!-- modal.jsp 입니다!! -->
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
@@ -29,7 +30,7 @@ label {
                     </button>
                 </div>
                 <div class="modal-body">
-                	내용
+                	내용, ${test }, ${test2 }, ${test3 }
 				</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">닫기</button>

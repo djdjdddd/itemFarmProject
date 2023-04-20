@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
+
 import frontcontroller.CommonInterface;
 import model.UnstoringService;
 import vo.CompanyVO;
@@ -26,12 +28,18 @@ public class UnstoringListController implements CommonInterface {
 //		int company_id = (int) session.getAttribute("company_id"); // ★나중에 로그인 및 세션-setAttribute 전부 되면 그때 사용
 		int company_id = 14; // 테스트용임.
 		int company_id2 = 10; // 테스트용임.
-		company.setCompany_id(company_id); 
+		company.setCompany_id(company_id2); 
 		
 		
 		List<UnstoringVO> unstoringList = service.selectAll(company);
 		// request가 유지되는 동안 저장한다. (dispatch 방식으로 forward 할 거니까)
 		request.setAttribute("unstoringList", unstoringList);
+		
+		// 모달 영역에 전해주기 위한 테스트 ★★★★★
+		Map<String, UnstoringVO> unstoringMap = service.selectAllbyMap(company);
+		JSONObject obj = new JSONObject();
+		obj.put("unstoringMap", unstoringMap);
+		request.setAttribute("obj", obj);
 
 		return page;
 	}

@@ -94,8 +94,9 @@ public class FrontController extends HttpServlet {
 		
 		if(page.indexOf("redirect:") >= 0) {
 			response.sendRedirect(page.substring(9));
-		}
-		else {
+		}else if(page.indexOf("responseBody:") >= 0){ // 이건 page가 아니라 응답문서의 body에 바로 보내주기 위해
+			response.getWriter().append(page.substring(13));
+		}else {
 			RequestDispatcher rd;
 			rd = request.getRequestDispatcher(page);
 			rd.forward(request, response);

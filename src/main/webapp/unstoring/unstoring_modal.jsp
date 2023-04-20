@@ -31,19 +31,24 @@ label {
                     </button>
                 </div>
                 <div class="modal-body">
+               	    <%-- unstoringModalList 는 왜 안되고, 갑자기 unstoringList 가 먹히냐고 ㅅㅂ --%>
+                
                 	<table>
+                	<%-- 아니 시벌 왜 unstoringList가 이번엔 또 먹히는거여?? 아깐 안되서 지금 다른 방법으로 했는데 미쳐버리겠네 진짜 --%>
+                	   <%--  <c:forEach var="list22" items="${unstoringModalList }"> --%>
                 		<tr>
-                			<td><label>주문자 성함 :</label>객체를 전송받아서 getAttribute 해야할 자리</td>
+                			<td id="aa" value=""><label>주문자 성함 :</label></td>
                 		</tr>
                 		<tr>
-                			<td><label>주문자 주소 :</label></td>
+                			<td id="bb" value=""><label>주문자 주소 :</label></td>
                 		</tr>
                 		<tr>
-                			<td><label>송장번호 :</label></td>
+                			<td id="cc" value=""><label>송장번호 :</label></td>
                 		</tr>
                 		<tr>
-                			<td><label>주문상태 :</label></td>
+                			<td id="dd" value=""><label>주문상태 :</label></td> <!-- ${list22.unstoring_state } -->
                 		</tr>
+                		<%-- </c:forEach> --%>
                 	</table>
                 	
                 	<!-- Page Heading -->
@@ -70,7 +75,7 @@ label {
                                     <tbody>
                                      	<!-- core 태그를 써야 할까 / 아니면 그냥 json 파싱해서 가져오면 될까 -->
                                         <tr>
-                                            <td>Tiger Nixon</td>
+                                            <td>${list.unstoring_code }</td>
                                             <td>System Architect</td>
                                             <td>Edinburgh</td>
                                         </tr>
