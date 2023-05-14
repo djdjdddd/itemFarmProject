@@ -73,6 +73,8 @@ $(document).ready(function(){
 				alert('등록을 취소하셨습니다.');
 				return;
 			}
+		}else{
+			alert('필요한 정보를 모두 입력해주세요.');
 		}
 	});
 });
